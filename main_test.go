@@ -1,26 +1,31 @@
-package main_test
-
+package main
 import (
     "os"
+    "log"
     "testing"
-
-    "."
 )
-
-var a main.App
-
+var a App
 func TestMain(m *testing.M) {
-    a = main.App{}
-    a.Initialize(
-        os.Getenv("TEST_DB_USERNAME"),
-        os.Getenv("TEST_DB_PASSWORD"),
-        os.Getenv("TEST_DB_NAME"))
-
+    a = App{}
+    a.Initialize("redcoins", "moedasvermelhas", "rest_api_example")
     ensureTableExists()
-
     code := m.Run()
-
     clearTable()
-
     os.Exit(code)
 }
+func ensureTableExists() {
+    if _, err := a.DB.Exec(tableCreationQuery); err != nil {
+        log.Fatal(err)
+    }
+}
+func clearTable() {
+    a.DB.Exec("DELETE FROM users")
+    a.DB.Exec("ALTER TABLE users AUTO_INCREMENT = 1")
+}
+const tableCreationQuery = `
+CREATE TABLE IF NOT EXISTS users
+(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    age INT NOT NULL
+)`

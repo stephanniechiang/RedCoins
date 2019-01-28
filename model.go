@@ -5,28 +5,28 @@ import (
     "errors"
 )
 
-type product struct {
-    ID    int     `json:"id"`
-    Name  string  `json:"name"`
-    Price float64 `json:"price"`
+type user struct {
+    ID    int    `json:"id"`
+    Name  string `json:"name"`
+    Age   int    `json:"age"`
 }
 
-func (p *product) getProduct(db *sql.DB) error {
-  return errors.New("Not implemented")
+func (u *user) getUser(db *sql.DB) error {
+    return errors.New("Not implemented")
 }
 
-func (p *product) updateProduct(db *sql.DB) error {
-  return errors.New("Not implemented")
+func (u *user) updateUser(db *sql.DB) error {
+    return errors.New("Not implemented")
 }
 
-func (p *product) deleteProduct(db *sql.DB) error {
-  return errors.New("Not implemented")
+func (u *user) deleteUser(db *sql.DB) error {
+    return errors.New("Not implemented")
 }
 
-func (p *product) createProduct(db *sql.DB) error {
-  return errors.New("Not implemented")
+func (u *user) createUser(db *sql.DB) error {
+    return errors.New("Not implemented")
 }
 
-func getProducts(db *sql.DB, start, count int) ([]product, error) {
-  return nil, errors.New("Not implemented")
+func getUsers(db *sql.DB, start, count int) ([]user, error) {
+    return nil, errors.New("Not implemented")
 }
