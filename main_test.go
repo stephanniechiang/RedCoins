@@ -60,7 +60,8 @@ CREATE TABLE IF NOT EXISTS users
     email VARCHAR(50) NOT NULL,
     password VARCHAR(50) NOT NULL,
     birthday VARCHAR(50) NOT NULL,
-    balance FLOAT NOT NULL
+    balance FLOAT,
+    balance_bit FLOAT
 );`
 
 const tableCreationQueryTransaction = `
@@ -150,7 +151,7 @@ func TestGetNonExistentTransaction(t *testing.T) {
 func TestCreateUser(t *testing.T) {
     clearTableUser()
 
-    payload := []byte(`{"name":"John","last_name":"Appleseed","email":"john@appleseed.com","password":"mortadela1","birthday":"01/01/1900","balance":0.00}`)
+    payload := []byte(`{"name":"John","last_name":"Appleseed","email":"john@appleseed.com","password":"mortadela1","birthday":"01/01/1900","balance":0.00,"balance_bit":0.00}`)
 
     req, _ := http.NewRequest("POST", "/user", bytes.NewBuffer(payload))
     response := executeRequest(req)
@@ -184,47 +185,61 @@ func TestCreateUser(t *testing.T) {
         t.Errorf("Expected user balance to be '0.00'. Got '%v'", m["balance"])
     }
 
+    if m["balance_bit"] != 0.00 {
+        t.Errorf("Expected user balance_bit to be '0.00'. Got '%v'", m["balance_bit"])
+    }
+
     // the id is compared to 1.0 because JSON unmarshaling converts numbers to
     // floats, when the target is a map[string]interface{}
     if m["id"] != 1.0 {
-        t.Errorf("Expected product ID to be '1'. Got '%v'", m["id"])
+        t.Errorf("Expected user ID to be '1'. Got '%v'", m["id"])
     }
 }
 
 func TestCreateTransaction(t *testing.T) {
     clearTableTransaction()
 
-    payload := []byte(`{"date":"30/01/2019","hour":"16:42","type":"purchase","bitcoins":100.00,"convert_tx":2.3,"final_value":230.00,"user_id_1":1,"user_id_2":45}`)
+    // clearTableUser()
 
-    req, _ := http.NewRequest("POST", "/transaction", bytes.NewBuffer(payload))
-    response := executeRequest(req)
+    // payload1 := []byte(`{"name":"John","last_name":"Appleseed","email":"john@appleseed.com","password":"mortadela1","birthday":"01/01/1900","balance":0.00,"balance_bit":0.00}`)
 
-    checkResponseCode(t, http.StatusCreated, response.Code)
+    // req1, _ := http.NewRequest("POST", "/user", bytes.NewBuffer(payload1))
+    // response1 := executeRequest(req1)
+
+    // checkResponseCode(t, http.StatusCreated, response1.Code)
+    addUsers(1);
+
+    payload2 := []byte(`{"date":"03/04/2015","hour":"18:40","type":"sale","bitcoins":100.00,"convert_tx":2.30,"final_value":230.00,"user_id_1":1,"user_id_2":43}`)
+
+    req2, _ := http.NewRequest("POST", "/transaction", bytes.NewBuffer(payload2))
+    response2 := executeRequest(req2)
+
+    checkResponseCode(t, http.StatusCreated, response2.Code)
 
     var m map[string]interface{}
-    json.Unmarshal(response.Body.Bytes(), &m)
+    json.Unmarshal(response2.Body.Bytes(), &m)
 
-    if m["date"] != "30/01/2019" {
-        t.Errorf("Expected transaction date to be '30/01/2019'. Got '%v'", m["date"])
+    if m["date"] != "03/04/2015" {
+        t.Errorf("Expected transaction date to be '03/04/2015'. Got '%v'", m["date"])
     }
 
-    if m["hour"] != "16:42" {
-        t.Errorf("Expected transaction hour to be '16:42'. Got '%v'", m["hour"])
+    if m["hour"] != "18:40" {
+        t.Errorf("Expected transaction hour to be '18:40'. Got '%v'", m["hour"])
     }
 
-    if m["type"] != "purchase" {
-        t.Errorf("Expected transaction type to be 'purchase'. Got '%v'", m["type"])
+    if m["type"] != "sale" {
+        t.Errorf("Expected transaction type to be 'sale'. Got '%v'", m["type"])
     }
 
     if m["bitcoins"] != 100.00 {
         t.Errorf("Expected transaction bitcoins to be '100.00'. Got '%v'", m["bitcoins"])
     }
 
-    if m["convert_tx"] != 2.3 {
-        t.Errorf("Expected transaction convert_tx to be '2.3'. Got '%v'", m["convert_tx"])
+    if m["convert_tx"] != 2.30 {
+        t.Errorf("Expected transaction convert_tx to be '2.30'. Got '%v'", m["convert_tx"])
     }
 
-    if m["final_value"] != 230.00{
+    if m["final_value"] != 230.00 {
         t.Errorf("Expected transaction final_value to be '230.00'. Got '%v'", m["final_value"])
     }
 
@@ -232,14 +247,14 @@ func TestCreateTransaction(t *testing.T) {
         t.Errorf("Expected transaction user_id_1 to be '1'. Got '%v'", m["user_id_1"])
     }
 
-    if m["user_id_2"] != 45 {
-        t.Errorf("Expected transaction user_id_2 to be '45'. Got '%v'", m["user_id_2"])
+    if m["user_id_2"] != 43 {
+        t.Errorf("Expected transaction user_id_2 to be '43'. Got '%v'", m["user_id_2"])
     }
 
     // the id is compared to 1.0 because JSON unmarshaling converts numbers to
     // floats, when the target is a map[string]interface{}
     if m["id"] != 1.0 {
-        t.Errorf("Expected product ID to be '1'. Got '%v'", m["id"])
+        t.Errorf("Expected transaction ID to be '1'. Got '%v'", m["id"])
     }
 }
 
@@ -249,18 +264,19 @@ func addUsers(count int) {
     }
 
     for i := 0; i < count; i++ {
-    statement := fmt.Sprintf("INSERT INTO users(name, last_name, email, password, birthday, balance) VALUES('%s', '%s', '%s', '%s', '%s', %d)", ("User " + strconv.Itoa(i+1)), ("User " + strconv.Itoa(i+1)), ("User " + strconv.Itoa(i+1)), ("User " + strconv.Itoa(i+1)), ("User " + strconv.Itoa(i+1)), ((i+1.0) * 10.0))
+        statement := fmt.Sprintf("INSERT INTO users(name, last_name, email, password, birthday, balance, balance_bit) VALUES('%s', '%s', '%s', '%s', '%s', %d, %d)", ("Name " + strconv.Itoa(i+1)), ("Last Name " + strconv.Itoa(i+1)), ("Email " + strconv.Itoa(i+1)), ("Password " + strconv.Itoa(i+1)), ("Birthday " + strconv.Itoa(i+1)), ((i+1.0) * 10.0), ((i+1.0) * 10.0))
         a.DB.Exec(statement)
     }
 }
 
 func addTransactions(count int) {
+    addUsers(1);
     if count < 1 {
         count = 1
     }
 
     for i := 0; i < count; i++ {
-    statement := fmt.Sprintf("INSERT INTO transactionss(date, hour, type, bitcoins, convert_tx, final_value, user_id_1, user_id_2) VALUES('%s', '%s', '%s', %d, %d, %d, %d, %d)", ("Transaction " + strconv.Itoa(i+1)), ("Transaction " + strconv.Itoa(i+1)), ("Transaction " + strconv.Itoa(i+1)), ((i+1.0) * 10.0), ((i+1.0) * 10.0), ((i+1.0) * 10.0), ((i+1.0) * 10.0), ((i+1.0) * 10.0))
+        statement := fmt.Sprintf("INSERT INTO transactions(date, hour, type, bitcoins, convert_tx, final_value, user_id_1, user_id_2) VALUES('%s', '%s', '%s', %d, %d, %d, %d, %d)", ("Date " + strconv.Itoa(i+1)), ("Hour " + strconv.Itoa(i+1)), ("Type " + strconv.Itoa(i+1)), ((i+1.0) * 10.0), ((i+1.0) * 10.0), ((i+1.0) * 10.0), 1, ((i+1.0) * 10.0))
         a.DB.Exec(statement)
     }
 }
@@ -294,7 +310,7 @@ func TestUpdateUser(t *testing.T) {
     var originalUser map[string]interface{}
     json.Unmarshal(response.Body.Bytes(), &originalUser)
 
-    payload := []byte(`{"name":"John - Updated","last_name":"Appleseed","email":"john@appleseed.com","password":"mortadela1","birthday":"01/01/1900","balance":0.00}`)
+    payload := []byte(`{"name":"John - Updated","last_name":"Appleseed","email":"john@appleseed.com","password":"mortadela1","birthday":"01/01/1900","balance":0.00,"balance_bit":0.00}`)
 
     req, _ = http.NewRequest("PUT", "/user/1", bytes.NewBuffer(payload))
     response = executeRequest(req)
@@ -331,6 +347,10 @@ func TestUpdateUser(t *testing.T) {
     if m["balance"] == originalUser["balance"] {
         t.Errorf("Expected the balance to change from '%v' to '%v'. Got '%v'", originalUser["balance"], m["balance"], m["balance"])
     }
+
+    if m["balance_bit"] == originalUser["balance_bit"] {
+        t.Errorf("Expected the balance_bit to change from '%v' to '%v'. Got '%v'", originalUser["balance_bit"], m["balance_bit"], m["balance_bit"])
+    }
 }
 
 func TestUpdateTransaction(t *testing.T) {
@@ -342,7 +362,7 @@ func TestUpdateTransaction(t *testing.T) {
     var originalTransaction map[string]interface{}
     json.Unmarshal(response.Body.Bytes(), &originalTransaction)
 
-    payload := []byte(`{"date":"31/01/2019","hour":"16:50","type":"sale","bitcoins":10.00,"convert_tx":2.3,"final_value":23.00,"user_id_1":45,"user_id_2":1}`)
+    payload := []byte(`{"date":"31/01/2019","hour":"16:50","type":"sale","bitcoins":10.00,"convert_tx":2.3,"final_value":23.00,"user_id_1":2,"user_id_2":43}`)
 
     req, _ = http.NewRequest("PUT", "/transaction/1", bytes.NewBuffer(payload))
     response = executeRequest(req)
@@ -409,6 +429,8 @@ func TestDeleteUser(t *testing.T) {
 
 func TestDeleteTransaction(t *testing.T) {
     clearTableTransaction()
+    clearTableUser()
+    addUsers(1)
     addTransactions(1)
 
     req, _ := http.NewRequest("GET", "/transaction/1", nil)

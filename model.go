@@ -13,7 +13,8 @@ type user struct {
   Email string `json:"email"`
   Password string `json:"password"`
   Birthday string `json:"birthday"`
-  Balance  float64    `json:"balance"`
+  Balance float64 `json:"balance"`
+  Balance_Bit float64 `json:"balance_bit"`
 }
 
 type transaction struct {
@@ -29,8 +30,8 @@ type transaction struct {
 }
 
 func (u *user) getUser(db *sql.DB) error {
-  statement := fmt.Sprintf("SELECT name, last_name, email, password, birthday, balance FROM users WHERE id=%d", u.ID)
-  return db.QueryRow(statement).Scan(&u.Name, &u.Last_Name, &u.Email, &u.Password, &u.Birthday, &u.Balance)
+  statement := fmt.Sprintf("SELECT name, last_name, email, password, birthday, balance, balance_bit FROM users WHERE id=%d", u.ID)
+  return db.QueryRow(statement).Scan(&u.Name, &u.Last_Name, &u.Email, &u.Password, &u.Birthday, &u.Balance, &u.Balance_Bit)
 }
 
 func (u *transaction) getTransaction(db *sql.DB) error {
@@ -39,7 +40,7 @@ func (u *transaction) getTransaction(db *sql.DB) error {
 }
 
 func (u *user) updateUser(db *sql.DB) error {
-  statement := fmt.Sprintf("UPDATE users SET name='%s', last_name='%s', email='%s', password='%s', birthday='%s', balance=%f WHERE id=%d", u.Name, u.Last_Name, u.Email, u.Password, u.Birthday, u.Balance, u.ID)
+  statement := fmt.Sprintf("UPDATE users SET name='%s', last_name='%s', email='%s', password='%s', birthday='%s', balance=%f, balance_bit=%f WHERE id=%d", u.Name, u.Last_Name, u.Email, u.Password, u.Birthday, u.Balance, u.Balance_Bit, u.ID)
   _, err := db.Exec(statement)
   return err
 }
@@ -63,7 +64,7 @@ func (u *transaction) deleteTransaction(db *sql.DB) error {
 }
 
 func (u *user) createUser(db *sql.DB) error {
-  statement := fmt.Sprintf("INSERT INTO users(name, last_name, email, password, birthday, balance) VALUES('%s', '%s', '%s', '%s', '%s', %f)", u.Name, u.Last_Name, u.Email, u.Password, u.Birthday, u.Balance)
+  statement := fmt.Sprintf("INSERT INTO users(name, last_name, email, password, birthday, balance, balance_bit) VALUES('%s', '%s', '%s', '%s', '%s', %f, %f)", u.Name, u.Last_Name, u.Email, u.Password, u.Birthday, u.Balance, u.Balance_Bit)
   _, err := db.Exec(statement)
 
   if err != nil {
@@ -97,7 +98,7 @@ func (u *transaction) createTransaction(db *sql.DB) error {
 }
 
 func getUsers(db *sql.DB, start, count int) ([]user, error) {
-  statement := fmt.Sprintf("SELECT id, name, last_name, email, password, birthday, balance FROM users LIMIT %d OFFSET %d", count, start)
+  statement := fmt.Sprintf("SELECT id, name, last_name, email, password, birthday, balance, balance_bit FROM users LIMIT %d OFFSET %d", count, start)
   rows, err := db.Query(statement)
 
   if err != nil {
@@ -110,7 +111,7 @@ func getUsers(db *sql.DB, start, count int) ([]user, error) {
 
   for rows.Next() {
     var u user
-    if err := rows.Scan(&u.ID, &u.Name, &u.Last_Name, &u.Email, &u.Password, &u.Birthday, &u.Balance); err != nil {
+    if err := rows.Scan(&u.ID, &u.Name, &u.Last_Name, &u.Email, &u.Password, &u.Birthday, &u.Balance, &u.Balance_Bit); err != nil {
       return nil, err
     }
     users = append(users, u)
@@ -141,25 +142,3 @@ func getTransactions(db *sql.DB, start, count int) ([]transaction, error) {
 
   return transactions, nil
 }
-
-// func (u *transaction) getTransaction(db *sql.DB) error {
-//   statement := fmt.Sprintf("SELECT date, hour, type, bitcoins, convert_tx, final_value, user_id_1, user_id_2 FROM users WHERE id=%d", u.ID)
-//   return db.QueryRow(statement).Scan(&u.Date, &u.Hour, &u.Type, &u.Bitcoins, &u.Convert_Tx, &u.Final_Value, &u.User_ID_1, &u.User_ID_2)
-// }
-
-// func (u *transaction) updateTransaction(db *sql.DB) error {
-//   // statement := fmt.Sprintf("UPDATE users SET date='%s', last_name='%s', email='%s', password='%s', birthday='%s', balance=%f WHERE id=%d", u.Name, u.Last_Name, u.Email, u.Password, u.Birthday, u.Balance, u.ID)
-//   // _, err := db.Exec(statement)
-//   // return err
-//   return errors.New("Not implemented")
-// }
-
-// func (u *transaction) deleteTransaction(db *sql.DB) error {
-//     return errors.New("Not implemented")
-// }
-// func (u *transaction) createTransaction(db *sql.DB) error {
-//     return errors.New("Not implemented")
-// }
-// func getTransactions(db *sql.DB, start, count int) ([]transaction, error) {
-//     return nil, errors.New("Not implemented")
-// }
