@@ -1,4 +1,4 @@
-8080FROM golang
+FROM golang
 
 ADD . /go/src/redcoins
 
@@ -10,4 +10,4 @@ RUN go build
 
 ENTRYPOINT /go/bin/redcoins
 
-EXPOSE 
+EXPOSE 8080
