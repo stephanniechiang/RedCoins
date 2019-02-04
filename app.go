@@ -5,12 +5,16 @@ import (
     "encoding/json"
     "fmt"
     "log"
+    // "os"
     "net/http"
     "strconv"
 
     _ "github.com/go-sql-driver/mysql"
     "github.com/gorilla/mux"
 )
+
+// const clientID = "3481f956589106d754c6"
+// const clientSecret = "68179b61e46a6aa005a4cf8adfe809b3940a0af7"
 
 type App struct {
     Router *mux.Router
@@ -28,13 +32,20 @@ func (a *App) Initialize(user, password, dbname string) {
 
     a.Router = mux.NewRouter()
     a.initializeRoutes()
+
+    
 }
 
 func (a *App) Run(addr string) {
+
     log.Fatal(http.ListenAndServe(addr, a.Router))
 }
 
 func (a *App) initializeRoutes() {
+    // a.Router.Handle("/", http.FileServer(http.Dir("public")))
+    
+    // a.Router.HandleFunc("/oauth/redirect",a.auth)
+
     a.Router.HandleFunc("/users", a.getUsers).Methods("GET")
     a.Router.HandleFunc("/user", a.createUser).Methods("POST")
     a.Router.HandleFunc("/user/{id:[0-9]+}", a.getUser).Methods("GET")
@@ -47,6 +58,50 @@ func (a *App) initializeRoutes() {
     a.Router.HandleFunc("/transaction/{id:[0-9]+}", a.updateTransaction).Methods("PUT")
     a.Router.HandleFunc("/transaction/{id:[0-9]+}", a.deleteTransaction).Methods("DELETE")
 }
+
+// func (a *App) auth(w http.ResponseWriter, r *http.Request) {
+//         httpClient := http.Client{}
+//         // First, we need to get the value of the `code` query param
+//         err := r.ParseForm()
+//         if err != nil {
+//             fmt.Fprintf(os.Stdout, "could not parse query: %v", err)
+//             w.WriteHeader(http.StatusBadRequest)
+//         }
+//         code := r.FormValue("code")
+
+//         // Next, lets for the HTTP request to call the github oauth enpoint
+//         // to get our access token
+//         reqURL := fmt.Sprintf("https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&code=%s", clientID, clientSecret, code)
+//         req, err := http.NewRequest(http.MethodPost, reqURL, nil)
+//         if err != nil {
+//             fmt.Fprintf(os.Stdout, "could not create HTTP request: %v", err)
+//             w.WriteHeader(http.StatusBadRequest)
+//         }
+//         // We set this header since we want the response
+//         // as JSON
+//         req.Header.Set("accept", "application/json")
+
+//         // Send out the HTTP request
+//         res, err := httpClient.Do(req)
+//         if err != nil {
+//             fmt.Fprintf(os.Stdout, "could not send HTTP request: %v", err)
+//             w.WriteHeader(http.StatusInternalServerError)
+//         }
+//         defer res.Body.Close()
+
+//         // Parse the request body into the `OAuthAccessResponse` struct
+//         var t OAuthAccessResponse
+//         if err := json.NewDecoder(res.Body).Decode(&t); err != nil {
+//             fmt.Fprintf(os.Stdout, "could not parse JSON response: %v", err)
+//             w.WriteHeader(http.StatusBadRequest)
+//         }
+
+//         // Finally, send a response to redirect the user to the "welcome" page
+//         // with the access token
+    
+//         w.Header().Set("Location", "/welcome.html?access_token="+t.AccessToken)
+//         w.WriteHeader(http.StatusFound)     
+//     }
 
 func (a *App) getUsers(w http.ResponseWriter, r *http.Request) {
     count, _ := strconv.Atoi(r.FormValue("count"))

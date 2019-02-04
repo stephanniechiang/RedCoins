@@ -2,22 +2,31 @@ package main
 
 import (
     "net/http"
+    // "net/url"
+    // "log"
     "fmt"
     "os"
     "encoding/json"
+
+ //    "github.com/go-session/session"
+	// "gopkg.in/oauth2.v3/errors"
+	// "gopkg.in/oauth2.v3/manage"
+	// "gopkg.in/oauth2.v3/models"
+	// "gopkg.in/oauth2.v3/server"
+	// "gopkg.in/oauth2.v3/store"
 )
 
 const clientID = "3481f956589106d754c6"
-const clientSecret = "387c2603ac097621542e7e4ed2970291fd41692d"
+const clientSecret = "68179b61e46a6aa005a4cf8adfe809b3940a0af7"
 
 func main() {
-    // a := App{} 
-    // // You need to set your Username and Password here
-    // a.Initialize("root", "moedasvermelhas", "RedCoins")
+	// a := App{} 
+    
+	// a.Initialize("root", "moedasvermelhas", "RedCoins")
+	// a.Run(":8080")
+	// http.ListenAndServe(":8080", nil)
 
-    // a.Run(":8080")
-
-    fs := http.FileServer(http.Dir("public"))
+	fs := http.FileServer(http.Dir("public"))
 	http.Handle("/", fs)
 
 	// We will be using `httpClient` to make external HTTP requests later in our code
