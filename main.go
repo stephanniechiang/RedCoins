@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gorilla/mux"
-	"redcoins/app"
+	"RedCoins/app"
 	"os"
 	"fmt"
 	"net/http"
