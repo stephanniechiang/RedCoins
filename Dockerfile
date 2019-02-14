@@ -1,13 +1,15 @@
 FROM golang
 
-ADD . /go/src/redcoins
+ADD . /redcoins
 
 RUN go get golang.org/x/net/html
-RUN go get github.com/go-sql-driver/mysql
 RUN go get github.com/gorilla/mux
+RUN go get github.com/jinzhu/gorm
+RUN go get github.com/dgrijalva/jwt-go
+RUN go get github.com/joho/godotenv 
 
 RUN go build
 
-ENTRYPOINT /go/bin/redcoins
+ENTRYPOINT /redcoins
 
-EXPOSE 8080
+EXPOSE 8000

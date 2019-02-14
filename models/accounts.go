@@ -9,9 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-/*
-JWT claims struct
-*/
+//JWT claims struct
 type Token struct {
 	UserId uint
 	jwt.StandardClaims
@@ -25,6 +23,7 @@ type Account struct {
 	Email string `json:"email"`
 	Password string `json:"password"`
 	Birthday string `json:"birthday"`
+	Balance float64 `json:"balance"`
 	Token string `json:"token";sql:"-"`
 }
 
@@ -49,6 +48,10 @@ func (account *Account) Validate() (map[string] interface{}, bool) {
 
 	if len(account.Password) < 6 {
 		return u.Message(false, "Password is required"), false
+	}
+
+	if account.Balance < 0 {
+		return u.Message(false, "Balance is required"), false
 	}
 
 	//Email must be unique

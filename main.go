@@ -1,13 +1,12 @@
 package main
 
 import (
-	"RedCoins/controllers"
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 	"os"
 	"redcoins/app"
-	// "redcoins/controllers"
+	"redcoins/controllers"
 )
 
 func main() {
@@ -16,9 +15,10 @@ func main() {
 
 	router.HandleFunc("/api/user/new", controllers.CreateAccount).Methods("POST")
 	router.HandleFunc("/api/user/login", controllers.Authenticate).Methods("POST")
-	router.HandleFunc("/api/transactions/new", controllers.CreateTransaction).Methods("POST")
-	router.HandleFunc("/api/me/transactions", controllers.GetTransactionsFor).Methods("GET") //  user/2/transactions
-	router.HandleFunc("/api/user/{userId}/transactions", controllers.GetTransactionsFor).Methods("GET") //implementar
+	router.HandleFunc("/api/transactions/newsell", controllers.CreateTransactionSell).Methods("POST")
+	router.HandleFunc("/api/transactions/newbuy", controllers.CreateTransactionBuy).Methods("POST")
+	router.HandleFunc("/api/user/me/transactions", controllers.GetTransactionsForMe).Methods("GET")
+	router.HandleFunc("/api/user/{userId}/transactions", controllers.GetTransactionsForUser).Methods("GET")
 
 	router.Use(app.JwtAuthentication) //attach JWT auth middleware
 

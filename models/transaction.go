@@ -16,15 +16,8 @@ type Transaction struct {
 	User_Id_2 uint `json:"user_id_2"`
 }
 
-/*
- This struct function validate the required parameters sent through the http request body
-returns message and true if the requirement is met
-*/
+//This struct function validate the required parameters sent through the http request body returns message and true if the requirement is met
 func (transaction *Transaction) Validate() (map[string] interface{}, bool) {
-
-	if transaction.Type == "" {
-		return u.Message(false, "Transaction type should be on the payload"), false //implementar if type "sell" or "buy"
-	}
 
 	if transaction.Bitcoins <= 0 {
 		return u.Message(false, "Bitcoins value should be on the payload"), false
@@ -50,13 +43,30 @@ func (transaction *Transaction) Validate() (map[string] interface{}, bool) {
 	return u.Message(true, "success"), true
 }
 
-func (transaction *Transaction) Create() (map[string] interface{}) {
+func (transaction *Transaction) CreateSell() (map[string] interface{}) {
 
 	if resp, ok := transaction.Validate(); !ok {
 		return resp
 	}
 
+	transaction.Type = "sell"
 	GetDB().Create(transaction)
+
+
+	resp := u.Message(true, "success")
+	resp["transaction"] = transaction
+	return resp
+}
+
+func (transaction *Transaction) CreateBuy() (map[string] interface{}) {
+
+	if resp, ok := transaction.Validate(); !ok {
+		return resp
+	}
+
+	transaction.Type = "buy"
+	GetDB().Create(transaction)
+
 
 	resp := u.Message(true, "success")
 	resp["transaction"] = transaction
@@ -84,3 +94,4 @@ func GetTransactions(user uint) ([]*Transaction) {
 
 	return transactions
 }
+
